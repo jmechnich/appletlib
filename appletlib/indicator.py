@@ -4,7 +4,7 @@ import sip, syslog
 
 from PyQt4.Qt import *
 
-class Indicator:
+class Indicator(object):
     indicators = []
 
     def __init__(self,name,interval=1000):

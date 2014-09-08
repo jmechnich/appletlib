@@ -7,7 +7,7 @@ class Application(QApplication):
     timer = QTimer()
     
     def __init__(self, orgname, appname):
-        QApplication.__init__(self,sys.argv)
+        super(Application,self).__init__(sys.argv)
         self.setOrganizationName( orgname)
         self.setApplicationName( appname)
         self.setQuitOnLastWindowClosed( False)

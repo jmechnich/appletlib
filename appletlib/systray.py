@@ -6,9 +6,11 @@ from app import Application
 
 class SystemTrayIcon(QSystemTrayIcon):
     triggerUpdate = pyqtSignal()
+    triggerWheel  = pyqtSignal(int)
+    eventDict = dict((v,k) for k,v in  QEvent.__dict__.iteritems())
     
     def __init__(self,name,interval=1000):
-        QSystemTrayIcon.__init__(self)
+        super(SystemTrayIcon,self).__init__()
         self.fgColor = QColor(
             Application.settingsValue("fgColor", QColor("#33b0dc")))
         self.bgColor = QColor(
@@ -26,3 +28,12 @@ class SystemTrayIcon(QSystemTrayIcon):
     def timerEvent(self,ev):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  systray timerEvent")
         self.triggerUpdate.emit()
+
+    def event(self,ev):
+        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  systray event type '%s'" % \
+                       self.eventDict[ev.type()])
+        if ev.type() == QEvent.Wheel:
+            ev.accept()
+            self.triggerWheel.emit(ev.delta())
+            return True
+        return super(SystemTrayIcon,self).event(ev)
