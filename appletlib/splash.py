@@ -12,7 +12,11 @@ class Splash(QWidget):
     
     def show(self):
         super(Splash,self).show()
-        subprocess.call( ['xprop', '-id', "0x%x" % self.winId(),
-                          '-f', '_NET_WM_DESKTOP', '32c',
-                          '-set', '_NET_WM_DESKTOP', '0xFFFFFFFF'] )
-        
+        try:
+            # check if using X11
+            x11 = QX11Info()
+            subprocess.call( ['xprop', '-id', "0x%x" % self.winId(),
+                              '-f', '_NET_WM_DESKTOP', '32c',
+                              '-set', '_NET_WM_DESKTOP', '0xFFFFFFFF'] )
+        except:
+            pass
