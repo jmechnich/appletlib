@@ -26,15 +26,15 @@ class Application(QApplication):
     
         syslog.openlog( str(QApplication.applicationName()),
                         option, syslog.LOG_USER)
-
-        if level == 1:
+        
+        if level == 0:
+            syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_WARNING))
+        elif level == 1:
             syslog.setlogmask(syslog.LOG_UPTO( syslog.LOG_NOTICE))
         elif level == 2:
             syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_INFO))
-        elif level == 3:
-            syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
         else:
-            syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_WARNING))
+            syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
         syslog.syslog( syslog.LOG_INFO, "INFO   logging to syslog")
 
     @staticmethod
