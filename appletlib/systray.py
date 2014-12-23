@@ -26,14 +26,19 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.startTimer( self.interval)
 
     def timerEvent(self,ev):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  systray timerEvent")
+        #syslog.syslog( syslog.LOG_DEBUG, "DEBUG  systray timerEvent")
         self.triggerUpdate.emit()
 
     def event(self,ev):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  systray event type '%s'" % \
-                       self.eventDict[ev.type()])
         if ev.type() == QEvent.Wheel:
             ev.accept()
             self.triggerWheel.emit(ev.delta())
             return True
+        elif ev.type() == QEvent.Timer:
+            pass
+        else:
+            syslog.syslog(
+                syslog.LOG_DEBUG, "DEBUG  systray event type '%s'" % \
+                self.eventDict[ev.type()])
+
         return super(SystemTrayIcon,self).event(ev)
