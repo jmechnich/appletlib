@@ -1,10 +1,14 @@
-import syslog, sys, os, signal, atexit, socket
+import re, syslog, sys, os, signal, atexit, socket, argparse
+
+from posixsignal import Signal
 
 from PyQt4.Qt import QFile, QDir, QIODevice, QString, QIcon, QApplication
-from PyQt4.Qt import QSettings, QTimer
+from PyQt4.Qt import QSettings, QTimer, pyqtSignal
 
 class Application(QApplication):
     timer = QTimer()
+    sigusr1 = pyqtSignal()
+    sigusr2 = pyqtSignal()
     
     def __init__(self, orgname, appname):
         super(Application,self).__init__(sys.argv)
@@ -15,8 +19,27 @@ class Application(QApplication):
     def init(self, argdict):
         Application.setLogLevel( argdict.get('verbosity',0),
                                  argdict.get('daemon', 0))
-        Application.setup()
+        self.initSignalHandlers()
         Application.setThemeFromGtk()
+        Application.startIdleTimer()
+        
+    @staticmethod
+    def startIdleTimer():
+        # switch to python interpreter context every 500ms to check if
+        # POSIX signal was triggered
+        Application.timer.start(500)
+        Application.timer.timeout.connect(lambda:None)
+
+    @staticmethod
+    def parseCommandLine(desc):
+        ret = {}
+        parser = argparse.ArgumentParser(description=desc)
+        parser.add_argument( '-d', '--daemon',
+                             help='run as daemon', action="store_true")
+        parser.add_argument( '-v', '--verbosity', type=int, default=0,
+                             help='select verbosity (default: 0)')
+        args = parser.parse_args()
+        return args
 
     @staticmethod
     def setLogLevel( level, isDaemon):
@@ -26,6 +49,7 @@ class Application(QApplication):
     
         syslog.openlog( str(QApplication.applicationName()),
                         option, syslog.LOG_USER)
+        atexit.register(Application.cleanup)
         
         if level == 0:
             syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_WARNING))
@@ -41,15 +65,6 @@ class Application(QApplication):
     def cleanup():
         syslog.syslog( syslog.LOG_INFO, "INFO   shutting down");
         syslog.closelog()
-
-    @staticmethod
-    def setup():
-        atexit.register(Application.cleanup)
-        signal.signal( signal.SIGHUP,  Application.hupSignalHandler)
-        signal.signal( signal.SIGTERM, Application.termSignalHandler)
-        signal.signal( signal.SIGINT,  Application.intSignalHandler)
-        Application.timer.start(200)
-        Application.timer.timeout.connect(lambda: None)
 
     @staticmethod
     def setThemeFromGtk():
@@ -126,17 +141,21 @@ class Application(QApplication):
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
 
+    sigmap = { v:k for k,v in signal.__dict__.items() if re.match(r'^SIG[A-Z12]+$',k)}
+    def initSignalHandlers(self):
+        sigs = [ signal.SIGINT, signal.SIGTERM, signal.SIGUSR1, signal.SIGUSR2 ]
+        for s in sigs:
+            syslog.syslog( syslog.LOG_DEBUG, "DEBUG  Registering handler for "+
+                           self.sigmap[s])
+            sig = Signal.create(s,self)
+            sig.signal.connect(self.handleSignal)
 
-    @staticmethod
-    def hupSignalHandler( signal, stack):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  caught SIGHUP")
-        
-    @staticmethod
-    def termSignalHandler( signal, stack):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  caught SIGTERM")
-        QApplication.quit()
-    
-    @staticmethod
-    def intSignalHandler( signal, stack):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  caught SIGINT")
-        QApplication.quit()
+    def handleSignal(self,signum):
+        syslog.syslog( syslog.LOG_INFO, "INFO   Received "+self.sigmap[signum])
+        if signum == signal.SIGINT or \
+           signum == signal.SIGTERM:
+            self.quit()
+        elif signum == signal.SIGUSR1:
+            self.sigusr1.emit()
+        elif signum == signal.SIGUSR2:
+            self.sigusr2.emit()
