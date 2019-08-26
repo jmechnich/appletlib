@@ -1,8 +1,8 @@
 import re, syslog, sys, os, signal, atexit, socket, argparse
 
-from posixsignal import Signal
+from appletlib.posixsignal import Signal
 
-from PyQt4.Qt import QFile, QDir, QIODevice, QString, QIcon, QApplication
+from PyQt4.Qt import QFile, QDir, QIODevice, QIcon, QApplication
 from PyQt4.Qt import QSettings, QTimer, pyqtSignal
 
 class Application(QApplication):
@@ -20,7 +20,7 @@ class Application(QApplication):
         Application.setLogLevel( argdict.get('verbosity',0),
                                  argdict.get('daemon', 0))
         self.initSignalHandlers()
-        Application.setThemeFromGtk()
+        #Application.setThemeFromGtk()
         Application.startIdleTimer()
         
     @staticmethod
@@ -68,16 +68,16 @@ class Application(QApplication):
 
     @staticmethod
     def setThemeFromGtk():
-        f = QFile(QDir.homePath() + "/.gtkrc-2.0");
+        f = QFile(QDir.homePath() + "/.gtkrc-2.0")
         if not f.open(QIODevice.ReadOnly | QIODevice.Text):
             return
         while not f.atEnd():
-            l = f.readLine().trimmed();
+            l = f.readLine().trimmed()
             if l.startsWith("gtk-icon-theme-name="):
-                s = QString(l.split('=')[-1]);
+                s = l.split('=')[-1]
                 syslog.syslog( syslog.LOG_DEBUG,
                                "DEBUG  setting gtk theme %s" % str(s));
-                QIcon.setThemeName(s.remove('"'));
+                QIcon.setThemeName(s.remove('"'))
                 break
 
     @staticmethod
@@ -90,7 +90,8 @@ class Application(QApplication):
         if not s.contains(key): s.setValue( key, var)
         syslog.syslog( syslog.LOG_DEBUG,
                        "DEBUG  settingsValue %s, value:   %s" %
-                       (key, var.toString()))
+                       (key, var)
+        )
         return var
 
     @staticmethod
@@ -112,7 +113,7 @@ class Application(QApplication):
             if pid > 0:
                 # exit first parent
                 sys.exit(0)
-        except OSError, e:
+        except OSError as e:
             sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
         
@@ -127,7 +128,7 @@ class Application(QApplication):
             if pid > 0:
                 # exit from second parent
                 sys.exit(0)
-        except OSError, e:
+        except OSError as e:
             sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
        

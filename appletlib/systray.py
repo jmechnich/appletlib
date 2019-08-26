@@ -2,12 +2,12 @@ import syslog
 
 from PyQt4.Qt import *
 
-from app import Application
+from appletlib.app import Application
 
 class SystemTrayIcon(QSystemTrayIcon):
     triggerUpdate = pyqtSignal()
     triggerWheel  = pyqtSignal(int)
-    eventDict = dict((v,k) for k,v in  QEvent.__dict__.iteritems())
+    eventDict = dict((v,k) for k,v in  QEvent.__dict__.items())
     
     def __init__(self,name,interval=1000):
         super(SystemTrayIcon,self).__init__()
@@ -15,8 +15,8 @@ class SystemTrayIcon(QSystemTrayIcon):
             Application.settingsValue("fgColor", QColor("#33b0dc")))
         self.bgColor = QColor(
             Application.settingsValue("bgColor", QColor("#144556")))
-        self.interval = Application.settingsValue(
-            "%s/interval" % name, interval).toInt()[0]
+        self.interval = int(Application.settingsValue(
+            "%s/interval" % name, interval))
         
         pix = QPixmap(22,22)
         p = QPainter(pix)

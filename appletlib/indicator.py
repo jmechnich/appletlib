@@ -1,4 +1,4 @@
-from systray import SystemTrayIcon
+from appletlib.systray import SystemTrayIcon
 
 import sip, syslog
 

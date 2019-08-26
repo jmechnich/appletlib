@@ -18,18 +18,18 @@ class Signal(QObject):
         self.sn.activated.connect( self.handleSignal)
 
     def __del__(self):
-        signal.signal( self.signum, signal.SIG_DFL)
-        if Signal.fds.has_key( self.signum):
+        #signal.signal( self.signum, signal.SIG_DFL)
+        if self.signum in Signal.fds:
             Signal.fds.pop(self.signum)
         if self.fd[0] is not None:
             self.fd[0].close()
         if self.fd[1] is not None:
             self.fd[1].close()
-        super(Signal,self).__del__()
+        #super(Signal,self).__del__()
 
     @staticmethod
     def create(signum,parent):
-        if Signal.fds.has_key(signum):
+        if signum in Signal.fds:
             if Signal.fds[signum].sn:
                 sip.delete(Signal.fds[signum].sn)
             del(Signal.fds[signum])
@@ -52,4 +52,4 @@ class Signal(QObject):
 
     @staticmethod
     def handler(signum,frame):
-        Signal.fds[signum].fd[0].send(chr(1))
+        Signal.fds[signum].fd[0].send(bytes([1]))
