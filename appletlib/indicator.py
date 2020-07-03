@@ -2,7 +2,7 @@ from appletlib.systray import SystemTrayIcon
 
 import sip, syslog
 
-from PyQt4.Qt import QApplication, QPixmap, QTimer, QRect, QIcon
+from PyQt5.Qt import QApplication, QPixmap, QTimer, QRect, QIcon
 
 class Indicator(object):
     indicators = []

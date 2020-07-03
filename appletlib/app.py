@@ -2,8 +2,8 @@ import re, syslog, sys, os, signal, atexit, socket, argparse
 
 from appletlib.posixsignal import Signal
 
-from PyQt4.Qt import QFile, QDir, QIODevice, QIcon, QApplication
-from PyQt4.Qt import QSettings, QTimer, pyqtSignal
+from PyQt5.Qt import QFile, QDir, QIODevice, QIcon, QApplication
+from PyQt5.Qt import QSettings, QTimer, pyqtSignal
 
 class Application(QApplication):
     timer = QTimer()

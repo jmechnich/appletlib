@@ -6,14 +6,9 @@ PREFIX=/usr/local
 #PREFIX=/usr
 FILES=files.txt
 
-if ! $PYTHON -c 'import PyQt4' 2>/dev/null; then
-    echo "Installing ${PYTHON}-pyqt4"
-    sudo apt-get install ${PYTHON}-pyqt4
-fi
-
-if ! $PYTHON -c 'import PyQt4' 2>/dev/null; then
-    echo "Installing ${PYTHON}-pyqt4"
-    sudo apt-get install ${PYTHON}-pyqt4
+if ! $PYTHON -c 'import PyQt5' 2>/dev/null; then
+    echo "Installing ${PYTHON}-pyqt5"
+    sudo apt-get install ${PYTHON}-pyqt5
 fi
 
 echo "Installing to $PREFIX, keeping list of files in $FILES"

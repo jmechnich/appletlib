@@ -1,6 +1,6 @@
 import signal, sip, socket
 
-from PyQt4.QtCore import QObject, QSocketNotifier, pyqtSignal
+from PyQt5.QtCore import QObject, QSocketNotifier, pyqtSignal
 
 class Signal(QObject):
     signal = pyqtSignal(int)
