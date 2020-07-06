@@ -81,16 +81,18 @@ class Application(QApplication):
                 break
 
     @staticmethod
-    def settingsValue( key, default):
+    def settingsValue( key, default, t=None):
+        if t is None:
+            t = type(default)
         syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  settingsValue %s, default: %s" %
-                       (key, str(default)))
+                       "DEBUG  settingsValue %s, default: %s, type: %s" %
+                       (key, str(default), t))
         s = QSettings()
-        var = s.value(key, default)
+        var = s.value(key, default, t)
         if not s.contains(key): s.setValue( key, var)
         syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  settingsValue %s, value:   %s" %
-                       (key, var)
+                       "DEBUG  settingsValue %s, value: %s, type: %s" %
+                       (key, var, str(t))
         )
         return var
 
