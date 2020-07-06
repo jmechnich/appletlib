@@ -76,7 +76,7 @@ class Application(QApplication):
             if l.startsWith("gtk-icon-theme-name="):
                 s = l.split('=')[-1]
                 syslog.syslog( syslog.LOG_DEBUG,
-                               "DEBUG  setting gtk theme %s" % str(s));
+                               "DEBUG  setting gtk theme %s" % str(s))
                 QIcon.setThemeName(s.remove('"'))
                 break
 
