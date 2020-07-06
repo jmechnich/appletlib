@@ -21,15 +21,15 @@ class Indicator(object):
             self.indicators.remove(self)
 
     def initSystray(self):
-        self.s = SystemTrayIcon(self.name, self.interval)
+        self.systray = SystemTrayIcon(self.name, self.interval)
         p = QPixmap(22,22)
-        p.fill(self.s.bgColor)
-        self.s.setIcon(QIcon(p))
-        self.s.show()
+        p.fill(self.systray.bgColor)
+        self.systray.setIcon(QIcon(p))
+        self.systray.show()
 
     def reset(self):
         syslog.syslog( syslog.LOG_DEBUG, "DEBUG  indicator reset")
-        sip.delete(self.s)
+        sip.delete(self.systray)
         self.initSystray()
         for i in self.indicators:
             QTimer.singleShot(0, i.updateSplashGeometry)
@@ -37,7 +37,7 @@ class Indicator(object):
     def boundingBox(self):
         r = QRect()
         for i in self.indicators:
-            r = r.united( i.s.geometry())
+            r = r.united( i.systray.geometry())
         return r
     
     def screenSizeChanged( self, screen):
@@ -48,7 +48,7 @@ class Indicator(object):
                        "DEBUG  indicator updateSplashGeometry")
         if not self.splash: return
         if hide: self.hideAllSplashes()
-        r = self.s.geometry()
+        r = self.systray.geometry()
         sr = QApplication.desktop().availableGeometry()
         left = sr.width() - self.splash.width - r.left()
         if left > 0: left = 0

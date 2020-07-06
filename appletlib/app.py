@@ -102,46 +102,6 @@ class Application(QApplication):
         s = QSettings()
         s.setValue( key, val)
 
-    @staticmethod
-    def detach():
-        stdin  = '/dev/null'
-        stdout = '/dev/null'
-        stderr = '/dev/null'
-        
-        try:
-            pid = os.fork()
-            if pid > 0:
-                # exit first parent
-                sys.exit(0)
-        except OSError as e:
-            sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
-            sys.exit(1)
-        
-        # decouple from parent environment
-        os.chdir("/")
-        os.setsid()
-        os.umask(0)
-        
-        # do second fork
-        try:
-            pid = os.fork()
-            if pid > 0:
-                # exit from second parent
-                sys.exit(0)
-        except OSError as e:
-            sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
-            sys.exit(1)
-       
-        # redirect standard file descriptors
-        sys.stdout.flush()
-        sys.stderr.flush()
-        si = file(stdin, 'r')
-        so = file(stdout, 'a+')
-        se = file(stderr, 'a+', 0)
-        os.dup2(si.fileno(), sys.stdin.fileno())
-        os.dup2(so.fileno(), sys.stdout.fileno())
-        os.dup2(se.fileno(), sys.stderr.fileno())
-
     sigmap = { v:k for k,v in signal.__dict__.items() if re.match(r'^SIG[A-Z12]+$',k)}
     def initSignalHandlers(self):
         sigs = [ signal.SIGINT, signal.SIGTERM, signal.SIGUSR1, signal.SIGUSR2 ]
