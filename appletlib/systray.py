@@ -32,7 +32,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def event(self,ev):
         if ev.type() == QEvent.Wheel:
             ev.accept()
-            self.triggerWheel.emit(ev.delta())
+            self.triggerWheel.emit(ev.angleDelta().y())
             return True
         elif ev.type() == QEvent.Timer:
             pass
