@@ -1,6 +1,6 @@
-from appletlib.systray import SystemTrayIcon
+import syslog
 
-import sip, syslog
+from appletlib.systray import SystemTrayIcon
 
 from PyQt5.Qt import QApplication, QPixmap, QTimer, QRect, QIcon
 
@@ -14,7 +14,7 @@ class Indicator(object):
         self.interval = interval
         self.initSystray()
         self.splash = None
-        QApplication.desktop().resized.connect( self.screenSizeChanged)
+        QApplication.desktop().resized.connect(self.screenSizeChanged)
     
     def __del__(self):
         if self in self.indicators:
@@ -28,8 +28,8 @@ class Indicator(object):
         self.systray.show()
 
     def reset(self):
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG  indicator reset")
-        sip.delete(self.systray)
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  indicator reset")
+        self.systray.deleteLater()
         self.initSystray()
         for i in self.indicators:
             QTimer.singleShot(0, i.updateSplashGeometry)
@@ -37,15 +37,15 @@ class Indicator(object):
     def boundingBox(self):
         r = QRect()
         for i in self.indicators:
-            r = r.united( i.systray.geometry())
+            r = r.united(i.systray.geometry())
         return r
     
     def screenSizeChanged( self, screen):
         QTimer.singleShot(1000, self.updateSplashGeometry)
   
     def updateSplashGeometry(self, hide=False):
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  indicator updateSplashGeometry")
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  indicator updateSplashGeometry")
         if not self.splash: return
         if hide: self.hideAllSplashes()
         r = self.systray.geometry()
@@ -53,9 +53,9 @@ class Indicator(object):
         left = sr.width() - self.splash.width - r.left()
         if left > 0: left = 0
         top = r.height()+3
-        r.translate( left, top)
-        syslog.syslog( syslog.LOG_DEBUG, "DEBUG   topLeft: %d, %d" %
-                       (r.left(), r.top()))
+        r.translate(left, top)
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG   topLeft: %d, %d" %
+                      (r.left(), r.top()))
         self.splash.move(r.topLeft())
 
     def hideAllSplashes(self):

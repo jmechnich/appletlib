@@ -1,4 +1,6 @@
-import signal, sip, socket
+import signal
+import socket
+import syslog
 
 from PyQt5.QtCore import QObject, QSocketNotifier, pyqtSignal
 
@@ -29,19 +31,25 @@ class Signal(QObject):
 
     @staticmethod
     def create(signum,parent):
+        syslog.syslog(
+            syslog.LOG_DEBUG, "DEBUG  creating Signal instance for %d" % signum)
         if signum in Signal.fds:
             if Signal.fds[signum].sn:
-                sip.delete(Signal.fds[signum].sn)
+                Signal.fds[signum].sn.deleteLater()
             del(Signal.fds[signum])
         return Signal(signum,parent)
     
     def handleSignal(self):
+        syslog.syslog(
+            syslog.LOG_DEBUG, "DEBUG  handling signal %d" % self.signum)
         self.sn.setEnabled(False)
         self.fd[1].recv(1)
         self.signal.emit(self.signum)
         self.sn.setEnabled(True)
 
     def setupHandler(self):
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  setting up handler for signal %d" % self.signum)
         self.fd = socket.socketpair(socket.AF_UNIX,socket.SOCK_STREAM,0)
         if not self.fd:
             return -1
@@ -52,4 +60,6 @@ class Signal(QObject):
 
     @staticmethod
     def handler(signum,frame):
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  handling signal %d" % signum)
         Signal.fds[signum].fd[0].send(bytes([1]))
