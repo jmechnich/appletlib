@@ -5,6 +5,7 @@ from PyQt5.Qt import *
 from appletlib.app import Application
 
 class SystemTrayIcon(QSystemTrayIcon):
+    triggerToolTip = pyqtSignal(QHelpEvent)
     triggerUpdate = pyqtSignal()
     triggerWheel  = pyqtSignal(int)
     eventDict = dict((v,k) for k,v in  QEvent.__dict__.items())
@@ -36,6 +37,10 @@ class SystemTrayIcon(QSystemTrayIcon):
             return True
         elif ev.type() == QEvent.Timer:
             pass
+        elif ev.type() == QEvent.ToolTip:
+            ev.accept()
+            self.triggerToolTip.emit(ev)
+            return True
         else:
             syslog.syslog(
                 syslog.LOG_DEBUG, "DEBUG  systray event type '%s'" % \
