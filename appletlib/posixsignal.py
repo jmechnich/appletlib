@@ -16,8 +16,9 @@ class Signal(QObject):
         if self.setupHandler() < 0:
             return
 
-        self.sn = QSocketNotifier(self.fd[1].fileno(), QSocketNotifier.Read, parent)
-        self.sn.activated.connect( self.handleSignal)
+        self.sn = QSocketNotifier(
+            self.fd[1].fileno(), QSocketNotifier.Read, parent)
+        self.sn.activated.connect(self.handleSignal)
 
     def __del__(self):
         #signal.signal( self.signum, signal.SIG_DFL)
@@ -30,7 +31,7 @@ class Signal(QObject):
         #super(Signal,self).__del__()
 
     @staticmethod
-    def create(signum,parent):
+    def create(signum, parent):
         syslog.syslog(
             syslog.LOG_DEBUG, "DEBUG  creating Signal instance for %d" % signum)
         if signum in Signal.fds:
@@ -50,16 +51,15 @@ class Signal(QObject):
     def setupHandler(self):
         syslog.syslog(syslog.LOG_DEBUG,
                       "DEBUG  setting up handler for signal %d" % self.signum)
-        self.fd = socket.socketpair(socket.AF_UNIX,socket.SOCK_STREAM,0)
+        self.fd = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
         if not self.fd:
             return -1
         Signal.fds[self.signum] = self
-        signal.signal(self.signum,self.handler)
-        signal.siginterrupt(self.signum,False)
+        signal.signal(self.signum, self.handler)
+        signal.siginterrupt(self.signum, False)
         return 0
 
     @staticmethod
-    def handler(signum,frame):
-        syslog.syslog(syslog.LOG_DEBUG,
-                      "DEBUG  handling signal %d" % signum)
+    def handler(signum, frame):
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG  handling signal %d" % signum)
         Signal.fds[signum].fd[0].send(bytes([1]))

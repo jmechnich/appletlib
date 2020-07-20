@@ -24,10 +24,9 @@ class SystemTrayIcon(QSystemTrayIcon):
         p.fillRect(pix.rect(), Qt.black)
         p.end()
         self.setIcon(QIcon(pix))
-        self.startTimer( self.interval)
+        self.startTimer(self.interval)
 
     def timerEvent(self,ev):
-        #syslog.syslog( syslog.LOG_DEBUG, "DEBUG  systray timerEvent")
         self.triggerUpdate.emit()
 
     def event(self,ev):

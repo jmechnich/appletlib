@@ -1,4 +1,11 @@
-import re, syslog, sys, os, signal, atexit, socket, argparse
+import argparse
+import atexit
+import os
+import re
+import signal
+import socket
+import sys
+import syslog
 
 from appletlib.posixsignal import Signal
 
@@ -12,13 +19,13 @@ class Application(QApplication):
     
     def __init__(self, orgname, appname):
         super(Application,self).__init__(sys.argv)
-        self.setOrganizationName( orgname)
-        self.setApplicationName( appname)
+        self.setOrganizationName(orgname)
+        self.setApplicationName(appname)
         self.setQuitOnLastWindowClosed( False)
        
     def init(self, argdict):
-        Application.setLogLevel( argdict.get('verbosity',0),
-                                 argdict.get('daemon', 0))
+        Application.setLogLevel(argdict.get('verbosity',0),
+                                argdict.get('daemon', 0))
         self.initSignalHandlers()
         #Application.setThemeFromGtk()
         Application.startIdleTimer()
@@ -34,21 +41,21 @@ class Application(QApplication):
     def parseCommandLine(desc):
         ret = {}
         parser = argparse.ArgumentParser(description=desc)
-        parser.add_argument( '-d', '--daemon',
-                             help='run as daemon', action="store_true")
-        parser.add_argument( '-v', '--verbosity', type=int, default=0,
-                             help='select verbosity (default: 0)')
+        parser.add_argument('-d', '--daemon',
+                            help='run as daemon', action="store_true")
+        parser.add_argument('-v', '--verbosity', type=int, default=0,
+                            help='select verbosity (default: 0)')
         args = parser.parse_args()
         return args
 
     @staticmethod
-    def setLogLevel( level, isDaemon):
+    def setLogLevel(level, isDaemon):
         option = syslog.LOG_PID
         if not isDaemon:
             option |= syslog.LOG_PERROR
     
-        syslog.openlog( str(QApplication.applicationName()),
-                        option, syslog.LOG_USER)
+        syslog.openlog(str(QApplication.applicationName()),
+                       option, syslog.LOG_USER)
         atexit.register(Application.cleanup)
         
         if level == 0:
@@ -59,11 +66,11 @@ class Application(QApplication):
             syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_INFO))
         else:
             syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
-        syslog.syslog( syslog.LOG_INFO, "INFO   logging to syslog")
+        syslog.syslog(syslog.LOG_INFO, "INFO   logging to syslog")
 
     @staticmethod
     def cleanup():
-        syslog.syslog( syslog.LOG_INFO, "INFO   shutting down");
+        syslog.syslog(syslog.LOG_INFO, "INFO   shutting down");
         syslog.closelog()
 
     @staticmethod
@@ -75,8 +82,8 @@ class Application(QApplication):
             l = f.readLine().trimmed()
             if l.startsWith("gtk-icon-theme-name="):
                 s = l.split('=')[-1]
-                syslog.syslog( syslog.LOG_DEBUG,
-                               "DEBUG  setting gtk theme %s" % str(s))
+                syslog.syslog(syslog.LOG_DEBUG,
+                              "DEBUG  setting gtk theme %s" % str(s))
                 QIcon.setThemeName(s.remove('"'))
                 break
 
@@ -84,37 +91,39 @@ class Application(QApplication):
     def settingsValue( key, default, t=None):
         if t is None:
             t = type(default)
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  settingsValue %s, default: %s, type: %s" %
-                       (key, str(default), t))
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  settingsValue %s, default: %s, type: %s" %
+                      (key, str(default), t))
         s = QSettings()
         var = s.value(key, default, t)
         if not s.contains(key): s.setValue( key, var)
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  settingsValue %s, value: %s, type: %s" %
-                       (key, var, str(t))
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  settingsValue %s, value: %s, type: %s" %
+                      (key, var, str(t))
         )
         return var
 
     @staticmethod
     def setSettingsValue( key, val):
-        syslog.syslog( syslog.LOG_DEBUG,
-                       "DEBUG  setSettingsValue %s, value: %s" %
-                       (key, str(val)))
+        syslog.syslog(syslog.LOG_DEBUG,
+                      "DEBUG  setSettingsValue %s, value: %s" %
+                      (key, str(val)))
         s = QSettings()
         s.setValue( key, val)
 
-    sigmap = { v:k for k,v in signal.__dict__.items() if re.match(r'^SIG[A-Z12]+$',k)}
+    sigmap = {
+        v:k for k,v in signal.__dict__.items() if re.match(r'^SIG[A-Z12]+$',k)
+    }
     def initSignalHandlers(self):
         sigs = [ signal.SIGINT, signal.SIGTERM, signal.SIGUSR1, signal.SIGUSR2 ]
         for s in sigs:
-            syslog.syslog( syslog.LOG_DEBUG, "DEBUG  Registering handler for "+
-                           self.sigmap[s])
+            syslog.syslog(syslog.LOG_DEBUG, "DEBUG  Registering handler for "+
+                          self.sigmap[s])
             sig = Signal.create(s,self)
             sig.signal.connect(self.handleSignal)
 
     def handleSignal(self,signum):
-        syslog.syslog( syslog.LOG_INFO, "INFO   Received "+self.sigmap[signum])
+        syslog.syslog(syslog.LOG_INFO, "INFO   Received "+self.sigmap[signum])
         if signum == signal.SIGINT or \
            signum == signal.SIGTERM:
             self.quit()
