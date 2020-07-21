@@ -15,9 +15,10 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url='https://github.com/jmechnich/appletlib',
     packages=setuptools.find_packages(),
+    install_requires=["python-daemon", "PyQt5"],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: POSIX :: Linux",
     ],
     python_requires='>=3.6',
