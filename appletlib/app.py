@@ -9,27 +9,27 @@ import syslog
 
 from appletlib.posixsignal import Signal
 
-from PyQt5.Qt import QFile, QDir, QIODevice, QIcon, QApplication
-from PyQt5.Qt import QSettings, QTimer, pyqtSignal
+from PyQt5.Qt import QFile, QDir, QIODevice, QIcon, QApplication, QObject
+from PyQt5.Qt import QSettings, QTimer, QVariant, pyqtSignal
 
 class Application(QApplication):
     timer = QTimer()
     sigusr1 = pyqtSignal()
     sigusr2 = pyqtSignal()
-    
+
     def __init__(self, orgname, appname):
         super(Application,self).__init__(sys.argv)
         self.setOrganizationName(orgname)
         self.setApplicationName(appname)
         self.setQuitOnLastWindowClosed( False)
-       
+
     def init(self, argdict):
         Application.setLogLevel(argdict.get('verbosity',0),
                                 argdict.get('daemon', 0))
         self.initSignalHandlers()
         #Application.setThemeFromGtk()
         Application.startIdleTimer()
-        
+
     @staticmethod
     def startIdleTimer():
         # switch to python interpreter context every 500ms to check if
@@ -53,11 +53,11 @@ class Application(QApplication):
         option = syslog.LOG_PID
         if not isDaemon:
             option |= syslog.LOG_PERROR
-    
+
         syslog.openlog(str(QApplication.applicationName()),
                        option, syslog.LOG_USER)
         atexit.register(Application.cleanup)
-        
+
         if level == 0:
             syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_WARNING))
         elif level == 1:
@@ -131,3 +131,24 @@ class Application(QApplication):
             self.sigusr1.emit()
         elif signum == signal.SIGUSR2:
             self.sigusr2.emit()
+
+class SettingsValue(QObject):
+    valueChanged = pyqtSignal(QVariant)
+
+    def __init__(self, name, val, t, callback=None):
+        super(SettingsValue,self).__init__()
+        self.name  = name
+        self.type = t
+        self.val = Application.settingsValue(self.name, val, self.type)
+        if callback:
+            self.valueChanged.connect(callback)
+
+    def value(self):
+        return self.val
+
+    def setValue(self, val):
+        if self.val == val:
+            return
+        self.val = val
+        Application.setSettingsValue(self.name, self.val)
+        self.valueChanged.emit(self.val)
