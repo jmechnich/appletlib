@@ -56,24 +56,28 @@ class Indicator(object):
 
         r = self.systray.geometry()
         syslog.syslog(syslog.LOG_DEBUG, "DEBUG   systray rect: %s" % str(r))
-        screen = qApp.primaryScreen()
-        sr = screen.availableVirtualGeometry()
+        screen = qApp.screenAt(r.topLeft())
+        sr = screen.availableGeometry()
 
         top = 0
         splashpos = Indicator.splashpos.value()
         if splashpos == 0:
             left = sr.width() - self.splash.w - r.left()
-            if left > 0: left = 0
+            if left > 0:
+                left = 0
             top = r.height()+3
         elif splashpos == 1:
             left = r.width()+3
         elif splashpos == 2:
             left = sr.width() - self.splash.w - r.left()
-            if left > 0: left = 0
+            if left > 0:
+                left = 0
             top = -self.splash.h-3
         elif splashpos == 3:
             left = -self.splash.w-3
 
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG   translating: %d, %d" %
+                      (left,top))
         r.translate(left, top)
         self.splash.move(r.topLeft())
         syslog.syslog(syslog.LOG_DEBUG, "DEBUG   splash rect: %s" %
