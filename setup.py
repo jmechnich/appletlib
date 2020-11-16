@@ -14,7 +14,7 @@ setup(
     long_description_content_type="text/markdown",
     url='https://github.com/jmechnich/appletlib',
     packages=find_packages(),
-    use_scm_version=True,
+    use_scm_version={"local_scheme": "no-local-version"},
     setup_requires=['setuptools_scm'],
     install_requires=["python-daemon", "PyQt5"],
     classifiers=[
