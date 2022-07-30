@@ -1,3 +1,8 @@
+[![PyPI versio](https://img.shields.io/pypi/v/appletlib)](https://pypi.org/project/appletlib/)
+[![PyPi format](https://img.shields.io/pypi/format/appletlib)](https://pypi.org/project/appletlib/)
+[![PyPI license](https://img.shields.io/pypi/l/appletlib)](https://pypi.org/project/appletlib/)
+[![PyPi weekly downloads](https://img.shields.io/pypi/dw/appletlib)](https://pypi.org/project/appletlib/)
+
 appletlib
 ==============
 

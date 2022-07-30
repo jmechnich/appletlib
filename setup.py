@@ -9,6 +9,7 @@ setup(
     name='appletlib',
     author='Joerg Mechnich',
     author_email='joerg.mechnich@gmail.com',
+    license='GNU GPLv3',
     description='Python library providing a QSystemTrayIcon wrapper',
     long_description=long_description,
     long_description_content_type="text/markdown",
