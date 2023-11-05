@@ -26,4 +26,4 @@ Requirements
 ============
 
 - Python 3
-- PyQt 5
+- PyQt 6

@@ -3,23 +3,29 @@ import syslog
 from appletlib.app import Application, SettingsValue
 from appletlib.systray import SystemTrayIcon
 
-from PyQt5.Qt import *
+from PyQt6.QtCore import QRect, QTimer
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QGridLayout, QGroupBox, QLabel, QSpinBox
+
 
 class Indicator(object):
     indicators = []
     # splashpos: 0, 1, 2, 3 for top, left, bottom, right systray position
     splashpos = SettingsValue(
-        "splashpos", 0, int, lambda val: Indicator.updateAllSplashes())
+        "splashpos", 0, int, lambda val: Indicator.updateAllSplashes()
+    )
 
-    def __init__(self,name,interval=1000):
+    def __init__(self, name, interval=1000):
         if self not in self.indicators:
             self.indicators += [self]
         self.name = name
         self.interval = interval
         self.initSystray()
         self.splash = None
-        self.prefs  = None
-        qApp.desktop().resized.connect(self.screenSizeChanged)
+        self.prefs = None
+        Application.instance().primaryScreen().geometryChanged.connect(
+            self.screenSizeChanged
+        )
 
     def __del__(self):
         if self in self.indicators:
@@ -27,7 +33,7 @@ class Indicator(object):
 
     def initSystray(self):
         self.systray = SystemTrayIcon(self.name, self.interval)
-        p = QPixmap(22,22)
+        p = QPixmap(22, 22)
         p.fill(self.systray.bgColor)
         self.systray.setIcon(QIcon(p))
         self.systray.show()
@@ -49,14 +55,17 @@ class Indicator(object):
         QTimer.singleShot(1000, self.updateSplashGeometry)
 
     def updateSplashGeometry(self, hide=False):
-        syslog.syslog(syslog.LOG_DEBUG,
-                      "DEBUG  indicator %s updateSplashGeometry" % self.name)
-        if not self.splash: return
-        if hide: Indicator.hideAllSplashes()
+        syslog.syslog(
+            syslog.LOG_DEBUG, "DEBUG  indicator %s updateSplashGeometry" % self.name
+        )
+        if not self.splash:
+            return
+        if hide:
+            Indicator.hideAllSplashes()
 
         r = self.systray.geometry()
         syslog.syslog(syslog.LOG_DEBUG, "DEBUG   systray rect: %s" % str(r))
-        screen = qApp.screenAt(r.topLeft())
+        screen = Application.instance().screenAt(r.topLeft())
         sr = screen.availableGeometry()
 
         top = 0
@@ -65,23 +74,23 @@ class Indicator(object):
             left = sr.width() - self.splash.w - r.left()
             if left > 0:
                 left = 0
-            top = r.height()+3
+            top = r.height() + 3
         elif splashpos == 1:
-            left = r.width()+3
+            left = r.width() + 3
         elif splashpos == 2:
             left = sr.width() - self.splash.w - r.left()
             if left > 0:
                 left = 0
-            top = -self.splash.h-3
+            top = -self.splash.h - 3
         elif splashpos == 3:
-            left = -self.splash.w-3
+            left = -self.splash.w - 3
 
-        syslog.syslog(syslog.LOG_DEBUG, "DEBUG   translating: %d, %d" %
-                      (left,top))
+        syslog.syslog(syslog.LOG_DEBUG, "DEBUG   translating: %d, %d" % (left, top))
         r.translate(left, top)
         self.splash.move(r.topLeft())
-        syslog.syslog(syslog.LOG_DEBUG, "DEBUG   splash rect: %s" %
-                      str(self.splash.geometry()))
+        syslog.syslog(
+            syslog.LOG_DEBUG, "DEBUG   splash rect: %s" % str(self.splash.geometry())
+        )
 
     def getPrefs(self):
         if self.prefs:
@@ -98,7 +107,7 @@ class Indicator(object):
         splashposWid.valueChanged.connect(Indicator.splashpos.setValue)
         Indicator.splashpos.valueChanged.connect(splashposWid.setValue)
         v.addWidget(splashposWid, row, 1)
-        row +=1
+        row += 1
 
         self.prefs.setLayout(v)
         return self.prefs
