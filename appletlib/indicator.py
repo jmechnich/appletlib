@@ -3,7 +3,9 @@ import syslog
 from appletlib.app import Application, SettingsValue
 from appletlib.systray import SystemTrayIcon
 
-from PyQt5.Qt import *
+from PyQt6.QtCore import QRect, QTimer
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QGridLayout, QGroupBox, QLabel, QSpinBox
 
 class Indicator(object):
     indicators = []
@@ -19,7 +21,7 @@ class Indicator(object):
         self.initSystray()
         self.splash = None
         self.prefs  = None
-        qApp.desktop().resized.connect(self.screenSizeChanged)
+        Application.instance().primaryScreen().geometryChanged.connect(self.screenSizeChanged)
 
     def __del__(self):
         if self in self.indicators:
@@ -56,7 +58,7 @@ class Indicator(object):
 
         r = self.systray.geometry()
         syslog.syslog(syslog.LOG_DEBUG, "DEBUG   systray rect: %s" % str(r))
-        screen = qApp.screenAt(r.topLeft())
+        screen = Application.instance().screenAt(r.topLeft())
         sr = screen.availableGeometry()
 
         top = 0

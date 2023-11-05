@@ -1,7 +1,9 @@
 import subprocess
 import syslog
 
-from PyQt5.Qt import *
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QFont, QMouseEvent, QResizeEvent
+from PyQt6.QtWidgets import QWidget
 
 class Splash(QWidget):
     triggerClick = pyqtSignal(QMouseEvent)
@@ -11,10 +13,10 @@ class Splash(QWidget):
     def __init__(self):
         super(Splash,self).__init__()
         self.setWindowFlags(
-            Qt.SplashScreen |
-            Qt.WindowStaysOnTopHint |
-            Qt.BypassWindowManagerHint |
-            Qt.FramelessWindowHint
+            Qt.WindowType.SplashScreen |
+            Qt.WindowType.WindowStaysOnTopHint |
+            Qt.WindowType.BypassWindowManagerHint |
+            Qt.WindowType.FramelessWindowHint
         );
         self.setGeometry(0,0,1,1)
         self.setWindowOpacity(0.75)

@@ -17,7 +17,7 @@ setup(
     packages=find_packages(),
     use_scm_version={"local_scheme": "no-local-version"},
     setup_requires=['setuptools_scm'],
-    install_requires=["python-daemon", "PyQt5"],
+    install_requires=["python-daemon", "PyQt6"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

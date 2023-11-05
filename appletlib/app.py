@@ -9,8 +9,18 @@ import syslog
 
 from appletlib.posixsignal import Signal
 
-from PyQt5.Qt import QFile, QDir, QIODevice, QIcon, QApplication, QObject
-from PyQt5.Qt import QSettings, QTimer, QVariant, pyqtSignal
+from PyQt6.QtCore import (
+    QFile,
+    QDir,
+    QIODevice,
+    QObject,
+    QSettings,
+    QTimer,
+    QVariant,
+    pyqtSignal,
+)
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication
 
 class Application(QApplication):
     timer = QTimer()

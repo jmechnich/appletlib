@@ -2,7 +2,7 @@ import signal
 import socket
 import syslog
 
-from PyQt5.QtCore import QObject, QSocketNotifier, pyqtSignal
+from PyQt6.QtCore import QObject, QSocketNotifier, pyqtSignal
 
 class Signal(QObject):
     signal = pyqtSignal(int)
@@ -17,7 +17,7 @@ class Signal(QObject):
             return
 
         self.sn = QSocketNotifier(
-            self.fd[1].fileno(), QSocketNotifier.Read, parent)
+            self.fd[1].fileno(), QSocketNotifier.Type.Read, parent)
         self.sn.activated.connect(self.handleSignal)
 
     def __del__(self):
